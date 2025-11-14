@@ -90,6 +90,11 @@ public class ProhibitedWordManager {
             return true;
         }
         
+        // 额外检查：处理字母绕过（如"傻asd逼"）
+        if (containsProhibitedWordWithLetters(text, prohibitedWord)) {
+            return true;
+        }
+        
         // 创建正则表达式来匹配插入了分隔符的违禁词
         String regex = createRegexForProhibitedWord(prohibitedWord);
         return Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(text).find();
@@ -102,6 +107,15 @@ public class ProhibitedWordManager {
         // 简单的检查：移除所有数字后再检查
         String noDigitsText = text.replaceAll("[0-9]+", "");
         return noDigitsText.contains(prohibitedWord);
+    }
+
+    /**
+     * 检查文本是否包含带有字母分隔的违禁词（如"傻asd逼"）
+     */
+    private boolean containsProhibitedWordWithLetters(String text, String prohibitedWord) {
+        // 简单的检查：移除所有字母后再检查
+        String noLettersText = text.replaceAll("[a-zA-Z]+", "");
+        return noLettersText.contains(prohibitedWord);
     }
     
     /**

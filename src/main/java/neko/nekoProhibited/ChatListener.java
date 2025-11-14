@@ -46,6 +46,10 @@ public class ChatListener implements Listener {
                 // 如果检测到，替换原始消息
                 filteredMessage = replaceProhibitedWord(originalMessage, prohibitedWord, "杂鱼");
                 originalMessage = filteredMessage; // 更新原消息以处理后续违禁词
+            } else if (containsProhibitedWordWithLetters(originalMessage, prohibitedWord)) {
+                // 然后检查是否包含带有字母分隔的违禁词
+                filteredMessage = replaceProhibitedWord(originalMessage, prohibitedWord, "杂鱼");
+                originalMessage = filteredMessage; // 更新原消息以处理后续违禁词
             } else {
                 // 使用正则表达式进行替换
                 filteredMessage = replaceProhibitedWord(filteredMessage, prohibitedWord, "杂鱼");
@@ -62,6 +66,15 @@ public class ChatListener implements Listener {
         // 简单的检查：移除所有数字后再检查
         String noDigitsText = text.replaceAll("[0-9]+", "");
         return noDigitsText.contains(prohibitedWord);
+    }
+
+    /**
+     * 检查文本是否包含带有字母分隔的违禁词（如"傻asd逼"）
+     */
+    private boolean containsProhibitedWordWithLetters(String text, String prohibitedWord) {
+        // 简单的检查：移除所有字母后再检查
+        String noLettersText = text.replaceAll("[a-zA-Z]+", "");
+        return noLettersText.contains(prohibitedWord);
     }
     
     private String replaceProhibitedWord(String message, String prohibitedWord, String replacement) {
