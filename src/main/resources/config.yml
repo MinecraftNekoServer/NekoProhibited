@@ -1,0 +1,23 @@
+# 数据库配置
+database:
+  # 数据库类型 (sqlite, mysql)
+  type: mysql
+  # SQLite配置
+  sqlite:
+    path: "db/prohibited.db"
+  # MySQL配置 (如果使用MySQL)
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "neko_prohibited"
+    username: "root"
+    password: "wcjs123"
+    # 强制关闭SSL
+    useSSL: false
+
+# 违禁词检测设置
+prohibited:
+  # 是否启用违禁词检测
+  enabled: true
+  # 检测模式 (strict - 严格模式，会检测变体)
+  mode: "strict"
