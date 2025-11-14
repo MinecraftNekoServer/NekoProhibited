@@ -1,7 +1,6 @@
 package neko.nekoProhibited;
 
 import java.io.File;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -20,6 +19,8 @@ public class DatabaseManager {
     private String mysqlUsername;
     private String mysqlPassword;
     private boolean mysqlUseSSL;
+    private long lastConnectionTime;
+    private static final long CONNECTION_TIMEOUT = 60000; // 60秒
 
     public DatabaseManager(NekoProhibited plugin) {
         this.plugin = plugin;
@@ -47,7 +48,7 @@ public class DatabaseManager {
         try {
             if ("mysql".equalsIgnoreCase(dbType)) {
                 // MySQL连接
-                String url = String.format("jdbc:mysql://%s:%d/%s?useSSL=%s&serverTimezone=UTC", 
+                String url = String.format("jdbc:mysql://%s:%d/%s?useSSL=%s&serverTimezone=UTC&autoReconnect=true&failOverReadOnly=false&maxReconnects=10&initialTimeout=2&connectTimeout=60000&socketTimeout=60000", 
                                          mysqlHost, mysqlPort, mysqlDatabase, mysqlUseSSL);
                 connection = DriverManager.getConnection(url, mysqlUsername, mysqlPassword);
                 logger.info("成功连接到MySQL数据库: " + mysqlHost + ":" + mysqlPort + "/" + mysqlDatabase);
@@ -64,11 +65,34 @@ public class DatabaseManager {
                 logger.info("成功连接到SQLite数据库: " + sqlitePath);
             }
             
+            lastConnectionTime = System.currentTimeMillis();
+            
             // 初始化数据库表
             initializeTables();
         } catch (SQLException e) {
             logger.severe("连接数据库失败: " + e.getMessage());
         }
+    }
+
+    public Connection getConnection() {
+        // 检查连接是否有效，如果无效则重连
+        if (connection == null || isConnectionClosed() || isConnectionTimedOut()) {
+            logger.info("数据库连接已断开或超时，正在重新连接...");
+            connect();
+        }
+        return connection;
+    }
+
+    private boolean isConnectionClosed() {
+        try {
+            return connection == null || connection.isClosed();
+        } catch (SQLException e) {
+            return true; // 如果检查连接状态出错，认为连接已关闭
+        }
+    }
+
+    private boolean isConnectionTimedOut() {
+        return System.currentTimeMillis() - lastConnectionTime > CONNECTION_TIMEOUT;
     }
 
     public void disconnect() {
@@ -82,8 +106,21 @@ public class DatabaseManager {
         }
     }
 
-    public Connection getConnection() {
-        return connection;
+    /**
+     * 保持数据库连接活跃
+     */
+    public void keepConnectionAlive() {
+        try {
+            if (connection != null && !connection.isClosed()) {
+                // 执行一个简单的查询来保持连接活跃
+                try (PreparedStatement stmt = connection.prepareStatement("SELECT 1")) {
+                    stmt.execute();
+                }
+                lastConnectionTime = System.currentTimeMillis();
+            }
+        } catch (SQLException e) {
+            logger.warning("保持数据库连接活跃时出错: " + e.getMessage());
+        }
     }
 
     private void initializeTables() {
@@ -104,7 +141,7 @@ public class DatabaseManager {
                         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
             }
 
-            try (PreparedStatement stmt = connection.prepareStatement(createTableSQL)) {
+            try (PreparedStatement stmt = getConnection().prepareStatement(createTableSQL)) {
                 stmt.execute();
             }
             
