@@ -78,16 +78,30 @@ public class ProhibitedWordManager {
         }
         
         // 检查数字替换情况（如"1"替换"i"，"0"替换"o"等）
-        String textWithReplacements = replaceSimilarChars(normalizedText);
-        String prohibitedWordWithReplacements = replaceSimilarChars(prohibitedWord);
-        
-        if (textWithReplacements.contains(prohibitedWordWithReplacements)) {
-            return true;
-        }
-        
-        // 创建正则表达式来匹配插入了分隔符的违禁词
-        String regex = createRegexForProhibitedWord(prohibitedWord);
-        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(text).find();
+        String textWithReplacements = replaceSimilarChars(normalizedText);
+        String prohibitedWordWithReplacements = replaceSimilarChars(prohibitedWord);
+        
+        if (textWithReplacements.contains(prohibitedWordWithReplacements)) {
+            return true;
+        }
+        
+        // 额外检查：处理数字绕过（如"傻123逼"）
+        if (containsProhibitedWordWithDigits(text, prohibitedWord)) {
+            return true;
+        }
+        
+        // 创建正则表达式来匹配插入了分隔符的违禁词
+        String regex = createRegexForProhibitedWord(prohibitedWord);
+        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(text).find();
+    }
+
+    /**
+     * 检查文本是否包含带有数字分隔的违禁词（如"傻123逼"）
+     */
+    private boolean containsProhibitedWordWithDigits(String text, String prohibitedWord) {
+        // 简单的检查：移除所有数字后再检查
+        String noDigitsText = text.replaceAll("[0-9]+", "");
+        return noDigitsText.contains(prohibitedWord);
     }
     
     /**
@@ -118,7 +132,7 @@ public class ProhibitedWordManager {
             regex.append(Pattern.quote(String.valueOf(word.charAt(i))));
             // 在每个字符后添加可选的分隔符模式
             if (i < word.length() - 1) {
-                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~0134578@!lz9]*");
+                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~0123456789@!lz]*");
             }
         }
         return regex.toString();

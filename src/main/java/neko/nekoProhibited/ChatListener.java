@@ -35,15 +35,33 @@ public class ChatListener implements Listener {
         }
     }
     
-    private String filterMessage(String message) {
-        String filteredMessage = message;
-        
-        // 获取所有原始违禁词并逐个替换
-        for (String prohibitedWord : plugin.getProhibitedWordManager().getOriginalWords()) {
-            filteredMessage = replaceProhibitedWord(filteredMessage, prohibitedWord, "杂鱼");
-        }
-        
-        return filteredMessage;
+    private String filterMessage(String message) {
+        String filteredMessage = message;
+        String originalMessage = message;
+        
+        // 获取所有原始违禁词并逐个替换
+        for (String prohibitedWord : plugin.getProhibitedWordManager().getOriginalWords()) {
+            // 首先检查是否包含带有数字分隔的违禁词
+            if (containsProhibitedWordWithDigits(originalMessage, prohibitedWord)) {
+                // 如果检测到，替换原始消息
+                filteredMessage = replaceProhibitedWord(originalMessage, prohibitedWord, "杂鱼");
+                originalMessage = filteredMessage; // 更新原消息以处理后续违禁词
+            } else {
+                // 使用正则表达式进行替换
+                filteredMessage = replaceProhibitedWord(filteredMessage, prohibitedWord, "杂鱼");
+            }
+        }
+        
+        return filteredMessage;
+    }
+
+    /**
+     * 检查文本是否包含带有数字分隔的违禁词（如"傻123逼"）
+     */
+    private boolean containsProhibitedWordWithDigits(String text, String prohibitedWord) {
+        // 简单的检查：移除所有数字后再检查
+        String noDigitsText = text.replaceAll("[0-9]+", "");
+        return noDigitsText.contains(prohibitedWord);
     }
     
     private String replaceProhibitedWord(String message, String prohibitedWord, String replacement) {
@@ -62,7 +80,7 @@ public class ChatListener implements Listener {
             regex.append(createCharPattern(c));
             // 在每个字符后添加可选的分隔符模式
             if (i < word.length() - 1) {
-                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~0134578@!lz9]*");
+                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~0123456789@!lz]*");
             }
         }
         return regex.toString();
