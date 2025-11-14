@@ -41,18 +41,11 @@ public class ChatListener implements Listener {
         
         // 获取所有原始违禁词并逐个替换
         for (String prohibitedWord : plugin.getProhibitedWordManager().getOriginalWords()) {
-            // 首先检查是否包含带有数字分隔的违禁词
-            if (containsProhibitedWordWithDigits(originalMessage, prohibitedWord)) {
-                // 如果检测到，替换原始消息
+            // 使用ProhibitedWordManager的检测方法来判断是否真的包含违禁词
+            if (plugin.getProhibitedWordManager().isProhibited(originalMessage)) {
+                // 如果检测到违禁词，替换原始消息
                 filteredMessage = replaceProhibitedWord(originalMessage, prohibitedWord, "杂鱼");
                 originalMessage = filteredMessage; // 更新原消息以处理后续违禁词
-            } else if (containsProhibitedWordWithLetters(originalMessage, prohibitedWord)) {
-                // 然后检查是否包含带有字母分隔的违禁词
-                filteredMessage = replaceProhibitedWord(originalMessage, prohibitedWord, "杂鱼");
-                originalMessage = filteredMessage; // 更新原消息以处理后续违禁词
-            } else {
-                // 使用正则表达式进行替换
-                filteredMessage = replaceProhibitedWord(filteredMessage, prohibitedWord, "杂鱼");
             }
         }
         
@@ -63,18 +56,32 @@ public class ChatListener implements Listener {
      * 检查文本是否包含带有数字分隔的违禁词（如"傻123逼"）
      */
     private boolean containsProhibitedWordWithDigits(String text, String prohibitedWord) {
-        // 简单的检查：移除所有数字后再检查
-        String noDigitsText = text.replaceAll("[0-9]+", "");
-        return noDigitsText.contains(prohibitedWord);
+        // 更精确的检查：只检测在违禁词字符间插入数字的情况
+        // 构建一个正则表达式，匹配违禁词字符间可能有数字的模式
+        StringBuilder pattern = new StringBuilder();
+        for (int i = 0; i < prohibitedWord.length(); i++) {
+            if (i > 0) {
+                pattern.append("[0-9]*"); // 在字符之间允许数字
+            }
+            pattern.append(Pattern.quote(String.valueOf(prohibitedWord.charAt(i))));
+        }
+        return Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE).matcher(text).find();
     }
 
     /**
      * 检查文本是否包含带有字母分隔的违禁词（如"傻asd逼"）
      */
     private boolean containsProhibitedWordWithLetters(String text, String prohibitedWord) {
-        // 简单的检查：移除所有字母后再检查
-        String noLettersText = text.replaceAll("[a-zA-Z]+", "");
-        return noLettersText.contains(prohibitedWord);
+        // 更精确的检查：只匹配插入了字母的违禁词
+        // 创建一个模式来匹配违禁词，其中字符之间可能有字母
+        StringBuilder pattern = new StringBuilder();
+        for (int i = 0; i < prohibitedWord.length(); i++) {
+            if (i > 0) {
+                pattern.append("[a-zA-Z]*"); // 在字符之间允许字母
+            }
+            pattern.append(Pattern.quote(String.valueOf(prohibitedWord.charAt(i))));
+        }
+        return Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE).matcher(text).find();
     }
     
     private String replaceProhibitedWord(String message, String prohibitedWord, String replacement) {

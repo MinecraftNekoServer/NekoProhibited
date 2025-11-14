@@ -77,65 +77,88 @@ public class ProhibitedWordManager {
             return true;
         }
         
-        // 检查数字替换情况（如"1"替换"i"，"0"替换"o"等）
-        String textWithReplacements = replaceSimilarChars(normalizedText);
-        String prohibitedWordWithReplacements = replaceSimilarChars(prohibitedWord);
-        
-        if (textWithReplacements.contains(prohibitedWordWithReplacements)) {
-            return true;
-        }
-        
-        // 额外检查：处理数字绕过（如"傻123逼"）
-        if (containsProhibitedWordWithDigits(text, prohibitedWord)) {
-            return true;
-        }
-        
-        // 额外检查：处理字母绕过（如"傻asd逼"）
-        if (containsProhibitedWordWithLetters(text, prohibitedWord)) {
-            return true;
-        }
-        
-        // 创建正则表达式来匹配插入了分隔符的违禁词
-        String regex = createRegexForProhibitedWord(prohibitedWord);
-        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(text).find();
-    }
-
-    /**
-     * 检查文本是否包含带有数字分隔的违禁词（如"傻123逼"）
-     */
-    private boolean containsProhibitedWordWithDigits(String text, String prohibitedWord) {
-        // 简单的检查：移除所有数字后再检查
-        String noDigitsText = text.replaceAll("[0-9]+", "");
-        return noDigitsText.contains(prohibitedWord);
-    }
-
-    /**
-     * 检查文本是否包含带有字母分隔的违禁词（如"傻asd逼"）
-     */
-    private boolean containsProhibitedWordWithLetters(String text, String prohibitedWord) {
-        // 简单的检查：移除所有字母后再检查
-        String noLettersText = text.replaceAll("[a-zA-Z]+", "");
-        return noLettersText.contains(prohibitedWord);
+
+        // 额外检查：处理数字绕过（如"傻123逼"）
+
+        if (containsProhibitedWordWithDigits(text, prohibitedWord)) {
+
+            return true;
+
+        }
+
+        
+
+        // 额外检查：处理字母绕过（如"傻asd逼"）
+
+        if (containsProhibitedWordWithLetters(text, prohibitedWord)) {
+
+            return true;
+
+        }
+
+        
+
+        // 创建正则表达式来匹配插入了分隔符的违禁词
+
+        String regex = createRegexForProhibitedWord(prohibitedWord);
+
+        return Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(text).find();
+
     }
-    
+
+
+
     /**
-     * 替换相似字符，用于检测字符替换绕过
+
+     * 检查文本是否包含带有数字分隔的违禁词（如"傻123逼"）
+
      */
-    private String replaceSimilarChars(String text) {
-        return text.replace("0", "o")
-                  .replace("1", "i")
-                  .replace("3", "e")
-                  .replace("4", "a")
-                  .replace("5", "s")
-                  .replace("7", "t")
-                  .replace("8", "b")
-                  .replace("@", "a")
-                  .replace("$", "s")
-                  .replace("!", "i")
-                  .replace("l", "i") // 小写的L替换为i
-                  .replace("z", "s") // z替换为s
-                  .replace("9", "g"); // 9替换为g
+
+    private boolean containsProhibitedWordWithDigits(String text, String prohibitedWord) {
+        // 更精确的检查：只检测在违禁词字符间插入数字的情况
+        // 构建一个正则表达式，匹配违禁词字符间可能有数字的模式
+        StringBuilder pattern = new StringBuilder();
+        for (int i = 0; i < prohibitedWord.length(); i++) {
+            if (i > 0) {
+                pattern.append("[0-9]*"); // 在字符之间允许数字
+            }
+            pattern.append(Pattern.quote(String.valueOf(prohibitedWord.charAt(i))));
+        }
+        return Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE).matcher(text).find();
     }
+
+
+
+    /**
+
+     * 检查文本是否包含带有字母分隔的违禁词（如"傻asd逼"）
+
+     */
+
+    private boolean containsProhibitedWordWithLetters(String text, String prohibitedWord) {
+
+        // 更精确的检查：只移除插入在违禁词字符之间的字母
+
+        // 创建一个模式来匹配违禁词，其中字符之间可能有字母
+
+        StringBuilder pattern = new StringBuilder();
+
+        for (int i = 0; i < prohibitedWord.length(); i++) {
+
+            if (i > 0) {
+
+                pattern.append("[a-zA-Z]*"); // 在字符之间允许字母
+
+            }
+
+            pattern.append(Pattern.quote(String.valueOf(prohibitedWord.charAt(i))));
+
+        }
+
+        return Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE).matcher(text).find();
+
+    }
+
 
     /**
      * 为违禁词创建正则表达式，匹配插入了分隔符的情况
