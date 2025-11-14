@@ -84,10 +84,10 @@ public class ChatListener implements Listener {
         return Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE).matcher(text).find();
     }
     
-    private String replaceProhibitedWord(String message, String prohibitedWord, String replacement) {
-        // 创建正则表达式来匹配插入了分隔符和字符替换的违禁词
-        String regex = createRegexForProhibitedWord(prohibitedWord);
-        return message.replaceAll("(?i)" + regex, replacement);
+    private String replaceProhibitedWord(String message, String prohibitedWord, String replacement) {
+        // 创建正则表达式来匹配插入了分隔符和字符替换的违禁词
+        String regex = createRegexForProhibitedWord(prohibitedWord);
+        return message.replaceAll("(?i)" + regex, replacement);
     }
 
     /**
