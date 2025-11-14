@@ -62,6 +62,13 @@ prohibited:
 6. 在数据库中添加违禁词记录
 7. 玩家聊天时违禁词将被自动替换为"杂鱼"
 
+### 使用命令管理违禁词
+- `/prohibited add <违禁词> [描述]` - 添加违禁词
+- `/prohibited remove <违禁词>` - 删除违禁词
+- `/prohibited list` - 列出所有违禁词
+
+只有拥有`nekoprohibited.admin`权限的玩家或OP才能使用这些命令。
+
 ## 数据库结构
 
 违禁词存储在`prohibited_words`表中，包含以下字段：

@@ -24,6 +24,9 @@ public final class NekoProhibited extends JavaPlugin {
         // 注册事件监听器
         getServer().getPluginManager().registerEvents(new ChatListener(this), this);
         
+        // 注册命令
+        getCommand("prohibited").setExecutor(new ProhibitedCommand(this));
+        
         getLogger().info("NekoProhibited 插件启动完成!");
     }
 

@@ -4,3 +4,12 @@ main: neko.nekoProhibited.NekoProhibited
 api-version: '1.18'
 authors: [ 不穿胖次の小奶猫 ]
 website: https://cnmsb.xin/
+commands:
+  prohibited:
+    description: 违禁词管理命令
+    usage: /prohibited <add|remove|list> [参数]
+    permission: nekoprohibited.admin
+permissions:
+  nekoprohibited.admin:
+    description: 允许使用违禁词管理命令
+    default: op
