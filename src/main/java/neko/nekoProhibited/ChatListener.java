@@ -100,7 +100,7 @@ public class ChatListener implements Listener {
             regex.append(createCharPattern(c));
             // 在每个字符后添加可选的分隔符模式
             if (i < word.length() - 1) {
-                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~0123456789@!lz]*");
+                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~0123456789@!lz\uFF0C\u3002\uFF1B\uFF1A\uFF01\uFF1F\"\"''\uFF08\uFF09\u3010\u3011\u300A\u300B\u3001]*");
             }
         }
         return regex.toString();

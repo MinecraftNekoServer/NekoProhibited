@@ -54,7 +54,7 @@ prohibited:
 4. 玩家聊天时违禁词将被自动替换为"杂鱼"
 
 ### 使用MySQL
-1. 在MySQL中创建数据库（如neko_prohibited）
+1. 在MySQL中创建数ban据库（如neko_prohibited）
 2. 修改config.yml中的database.type为"mysql"
 3. 配置MySQL连接信息（host, port, database, username, password）
 4. 将插件放入服务器的plugins文件夹

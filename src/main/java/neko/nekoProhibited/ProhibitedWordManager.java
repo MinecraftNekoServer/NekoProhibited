@@ -114,17 +114,28 @@ public class ProhibitedWordManager {
 
      */
 
-    private boolean containsProhibitedWordWithDigits(String text, String prohibitedWord) {
-        // 更精确的检查：只检测在违禁词字符间插入数字的情况
-        // 构建一个正则表达式，匹配违禁词字符间可能有数字的模式
-        StringBuilder pattern = new StringBuilder();
-        for (int i = 0; i < prohibitedWord.length(); i++) {
-            if (i > 0) {
-                pattern.append("[0-9]*"); // 在字符之间允许数字
-            }
-            pattern.append(Pattern.quote(String.valueOf(prohibitedWord.charAt(i))));
-        }
-        return Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE).matcher(text).find();
+    private boolean containsProhibitedWordWithDigits(String text, String prohibitedWord) {
+
+        // 更精确的检查：只检测在违禁词字符间插入数字的情况
+
+        // 构建一个正则表达式，匹配违禁词字符间可能有数字的模式
+
+        StringBuilder pattern = new StringBuilder();
+
+        for (int i = 0; i < prohibitedWord.length(); i++) {
+
+            if (i > 0) {
+
+                pattern.append("[0-9]*"); // 在字符之间允许数字
+
+            }
+
+            pattern.append(Pattern.quote(String.valueOf(prohibitedWord.charAt(i))));
+
+        }
+
+        return Pattern.compile(pattern.toString(), Pattern.CASE_INSENSITIVE).matcher(text).find();
+
     }
 
 
@@ -169,7 +180,8 @@ public class ProhibitedWordManager {
             regex.append(Pattern.quote(String.valueOf(word.charAt(i))));
             // 在每个字符后添加可选的分隔符模式
             if (i < word.length() - 1) {
-                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~0123456789@!lz]*");
+                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~0-9l z，。；：！？\"'（）【】《》、]*");
+
             }
         }
         return regex.toString();
