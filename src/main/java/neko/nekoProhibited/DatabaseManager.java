@@ -128,7 +128,7 @@ public class DatabaseManager {
             // 创建违禁词表
             String createTableSQL = "CREATE TABLE IF NOT EXISTS prohibited_words (" +
                     "id INTEGER PRIMARY KEY AUTO_INCREMENT, " +
-                    "word TEXT NOT NULL UNIQUE, " +
+                    "word TEXT NOT NULL, " +
                     "description TEXT, " +
                     "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
 
@@ -136,7 +136,7 @@ public class DatabaseManager {
             if ("sqlite".equalsIgnoreCase(dbType)) {
                 createTableSQL = "CREATE TABLE IF NOT EXISTS prohibited_words (" +
                         "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                        "word TEXT NOT NULL UNIQUE, " +
+                        "word TEXT NOT NULL, " +
                         "description TEXT, " +
                         "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)";
             }
