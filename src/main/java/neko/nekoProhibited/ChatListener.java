@@ -47,23 +47,52 @@ public class ChatListener implements Listener {
     }
     
     private String replaceProhibitedWord(String message, String prohibitedWord, String replacement) {
-        // 创建正则表达式来匹配插入了分隔符的违禁词
+        // 创建正则表达式来匹配插入了分隔符和字符替换的违禁词
         String regex = createRegexForProhibitedWord(prohibitedWord);
-        return message.replaceAll(regex, replacement);
+        return message.replaceAll("(?i)" + regex, replacement);
     }
 
     /**
-     * 为违禁词创建正则表达式，匹配插入了分隔符的情况
+     * 为违禁词创建正则表达式，匹配插入了分隔符和字符替换的情况
      */
     private String createRegexForProhibitedWord(String word) {
         StringBuilder regex = new StringBuilder();
         for (int i = 0; i < word.length(); i++) {
-            regex.append(Pattern.quote(String.valueOf(word.charAt(i))));
+            char c = word.charAt(i);
+            regex.append(createCharPattern(c));
             // 在每个字符后添加可选的分隔符模式
             if (i < word.length() - 1) {
-                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~]*");
+                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~0134578@!lz9]*");
             }
         }
         return regex.toString();
+    }
+    
+    /**
+     * 为单个字符创建包含相似字符替换的模式
+     */
+    private String createCharPattern(char c) {
+        switch (c) {
+            case 'a':
+                return "[a@]";
+            case 's':
+                return "[s$5]";
+            case 'i':
+                return "[i!1l]";
+            case 'e':
+                return "[e3]";
+            case 'o':
+                return "[o0]";
+            case 't':
+                return "[t7]";
+            case 'b':
+                return "[b8]";
+            case 'g':
+                return "[g9]";
+            case 'z':
+                return "[z]";
+            default:
+                return Pattern.quote(String.valueOf(c));
+        }
     }
 }

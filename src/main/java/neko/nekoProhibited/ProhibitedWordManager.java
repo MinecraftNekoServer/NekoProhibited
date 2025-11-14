@@ -61,20 +61,52 @@ public class ProhibitedWordManager {
     }
 
     /**
-     * 检查文本是否包含违禁词，包括各种变体（如空格、符号等）
+     * 检查文本是否包含违禁词，包括各种变体（如空格、符号、数字替换等）
      */
     private boolean containsProhibitedWord(String text, String prohibitedWord) {
-        // 移除所有空格和常见分隔符的正则表达式
+        // 检查原始文本
+        if (text.contains(prohibitedWord)) {
+            return true;
+        }
+        
+        // 移除所有空格和常见分隔符
         String normalizedText = text.replaceAll("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~]+", "");
         
-        // 检查原始文本
+        // 检查移除分隔符后的文本
         if (normalizedText.contains(prohibitedWord)) {
+            return true;
+        }
+        
+        // 检查数字替换情况（如"1"替换"i"，"0"替换"o"等）
+        String textWithReplacements = replaceSimilarChars(normalizedText);
+        String prohibitedWordWithReplacements = replaceSimilarChars(prohibitedWord);
+        
+        if (textWithReplacements.contains(prohibitedWordWithReplacements)) {
             return true;
         }
         
         // 创建正则表达式来匹配插入了分隔符的违禁词
         String regex = createRegexForProhibitedWord(prohibitedWord);
         return Pattern.compile(regex, Pattern.CASE_INSENSITIVE).matcher(text).find();
+    }
+    
+    /**
+     * 替换相似字符，用于检测字符替换绕过
+     */
+    private String replaceSimilarChars(String text) {
+        return text.replace("0", "o")
+                  .replace("1", "i")
+                  .replace("3", "e")
+                  .replace("4", "a")
+                  .replace("5", "s")
+                  .replace("7", "t")
+                  .replace("8", "b")
+                  .replace("@", "a")
+                  .replace("$", "s")
+                  .replace("!", "i")
+                  .replace("l", "i") // 小写的L替换为i
+                  .replace("z", "s") // z替换为s
+                  .replace("9", "g"); // 9替换为g
     }
 
     /**
@@ -86,7 +118,7 @@ public class ProhibitedWordManager {
             regex.append(Pattern.quote(String.valueOf(word.charAt(i))));
             // 在每个字符后添加可选的分隔符模式
             if (i < word.length() - 1) {
-                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~]*");
+                regex.append("[\\s\\u00A0\\u2000-\\u200F\\u2028-\\u202F\\u205F-\\u206F\\\\.\\-,_'\"!@#$%^&*()\\[\\]{}|;:<>?/`~0134578@!lz9]*");
             }
         }
         return regex.toString();
